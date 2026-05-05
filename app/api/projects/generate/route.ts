@@ -1,16 +1,18 @@
+import { authSession } from "@/lib/auth-utils"
 import { db } from "@/lib/db"
 import { NextResponse } from "next/server"
 
 export async function POST(req: Request) {
   try {
     const { prompt } = await req.json()
+    const session = await authSession()
 
     const project = await db.project.create({
       data: {
         name: prompt.split("").slice(0, 3).join(" ") + "...",
         prompt,
         status: "ANALYZING",
-        userId: "userId",
+        userId: session.user.id as string,
       },
     })
     return NextResponse.json({ projectId: project.id })
